@@ -1,12 +1,24 @@
+![Logo](http://framework.zend.com/images/logos/ZendFramework-logo.png)
+
 Welcome to the Zend Framework 1.12 Release! 
 
-Master: [![Build Status](https://www.travis-ci.org/zendframework/zf1.png?branch=master)](https://www.travis-ci.org/zendframework/zf1)
+Master: [![Build Status](https://api.travis-ci.org/zendframework/zf1.png?branch=master)](https://travis-ci.org/zendframework/zf1)
 
 RELEASE INFORMATION
 ===================
 
 Zend Framework 1.12.4dev Release ([INSERT REV NUM HERE]).
 Released on <Month> <Day>, <Year>.
+
+IMPORTANT FIXES FOR 1.12.4
+--------------------------
+
+- [#221](https://github.com/zendframework/zf1/pull/221) removes the TinySrc view
+  helper, as the TinySrc service no longer exists.
+- [#222](https://github.com/zendframework/zf1/pull/222) removes the InfoCard
+  component, as the CardSpace service no longer exists.
+- [#271](https://github.com/zendframework/zf1/pull/271) removes the Nirvanix
+  component, as the Nirvanix service shut down in October 2013.
 
 IMPORTANT FIXES FOR 1.12.3
 --------------------------

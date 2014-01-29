@@ -15,7 +15,7 @@
  * @category   Zend
  * @package    Zend_Locale
  * @subpackage Data
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  * @version    $Id$
  */
@@ -31,7 +31,7 @@ require_once 'Zend/Locale.php';
  * @category   Zend
  * @package    Zend_Locale
  * @subpackage Data
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Locale_Data
@@ -918,9 +918,9 @@ class Zend_Locale_Data
                 break;
 
             case 'unit':
-                $_temp = self::_getFile($locale, '/ldml/units/unit', 'type');
+                $_temp = self::_getFile($locale, '/ldml/units/unitLength/unit', 'type');
                 foreach($_temp as $key => $keyvalue) {
-                    $_temp2 = self::_getFile($locale, '/ldml/units/unit[@type=\'' . $key . '\']/unitPattern', 'count');
+                    $_temp2 = self::_getFile($locale, '/ldml/units/unitLength/unit[@type=\'' . $key . '\']/unitPattern', 'count');
                     $temp[$key] = $_temp2;
                 }
                 break;
@@ -1465,7 +1465,7 @@ class Zend_Locale_Data
                 break;
 
             case 'unit':
-                $temp = self::_getFile($locale, '/ldml/units/unit[@type=\'' . $value[0] . '\']/unitPattern[@count=\'' . $value[1] . '\']', '');
+                $temp = self::_getFile($locale, '/ldml/units/unitLength/unit[@type=\'' . $value[0] . '\']/unitPattern[@count=\'' . $value[1] . '\']', '');
                 break;
 
             default :

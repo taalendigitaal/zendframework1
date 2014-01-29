@@ -15,7 +15,7 @@
  * @category   Zend
  * @package    Zend_Navigation
  * @subpackage UnitTests
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  * @version    $Id$
  */
@@ -32,14 +32,25 @@ require_once 'Zend/Controller/Router/Route/Chain.php';
  * @category   Zend
  * @package    Zend_Navigation
  * @subpackage UnitTests
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  * @group      Zend_Navigation
  */
 class Zend_Navigation_Page_MvcTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Zend_Controller_Front
+     */
     protected $_front;
+
+    /**
+     * @var Zend_Controller_Request_Abstract
+     */
     protected $_oldRequest;
+
+    /**
+     * @var Zend_Controller_Router_Interface
+     */
     protected $_oldRouter;
 
     protected function setUp()
@@ -49,6 +60,9 @@ class Zend_Navigation_Page_MvcTest extends PHPUnit_Framework_TestCase
         $this->_oldRouter = $this->_front->getRouter();
 
         $this->_front->resetInstance();
+
+        $_SERVER['HTTP_HOST'] = 'foobar.example.com';
+
         $this->_front->setRequest(new Zend_Controller_Request_Http());
         $this->_front->getRouter()->addDefaultRoutes();
     }
@@ -596,8 +610,6 @@ class Zend_Navigation_Page_MvcTest extends PHPUnit_Framework_TestCase
             'scheme'     => 'https',
         ));
 
-        $_SERVER['HTTP_HOST'] = 'foobar.example.com';
-
         $this->assertEquals(
             'https://foobar.example.com/foo/bar',
             $page->getHref()
@@ -631,8 +643,6 @@ class Zend_Navigation_Page_MvcTest extends PHPUnit_Framework_TestCase
                 )
             )
         );
-
-        $_SERVER['HTTP_HOST'] = 'foobar.example.com';
 
         $this->assertEquals(
             'https://foobar.example.com/lolcat/myaction/1337',

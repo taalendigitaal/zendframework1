@@ -15,7 +15,7 @@
  * @category   Zend
  * @package    Zend
  * @subpackage UnitTests
- * @copyright  Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  * @version    $Id$
  */
@@ -55,10 +55,14 @@ while(list(, $file)=each($files)) {
     echo "Executing {$file}" . PHP_EOL;
     system($PHPUNIT . ' --stderr -d memory_limit=-1 -d error_reporting=E_ALL\&E_STRICT -d display_errors=1 ' . escapeshellarg($file), $c_result);
     echo PHP_EOL;
+    echo "Finished executing {$file}" . PHP_EOL;
     
     if ($c_result) {
+        echo PHP_EOL . "Result of $file is $c_result" . PHP_EOL . PHP_EOL;
         $result = $c_result;
     }
 }
 
+
+echo PHP_EOL . "All done. Result: $result" . PHP_EOL;
 exit($result);
