@@ -858,7 +858,7 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
 
     public function testSelectWhereWithTypeFloat()
     {
-        $locale = setlocale(LC_ALL, null);
+        $locale = setlocale(LC_ALL, 0);
 
         $select = $this->_selectWhereWithTypeFloat();
         $stmt = $this->_db->query($select);
@@ -1697,7 +1697,7 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
         $serialize = serialize($this->_select());
         $this->assertTrue(is_string($serialize));
     }
-    
+
     /**
      * @group ZF-3792
      */
@@ -1706,7 +1706,7 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
         $table_A = $this->_db->quoteTableAs('A');
         $table_B = $this->_db->quoteTableAs('B');
         $colname = $this->_db->quoteIdentifier('colname');
-        
+
         $s = $this->_db->select()->from('A')->joinUsing('B', $colname);
         $this->assertContains("JOIN {$table_B} ON {$table_B}.{$colname} = {$table_A}.{$colname}", $s->assemble());
     }
@@ -1720,7 +1720,7 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
         $table_B = $this->_db->quoteTableAs('B');
         $colOne  = $this->_db->quoteIdentifier('colOne');
         $colTwo  = $this->_db->quoteIdentifier('colTwo');
-        
+
         $s = $this->_db->select()->from('A')->joinUsing('B', array($colOne,$colTwo));
         $this->assertContains(
             "JOIN {$table_B} ON {$table_B}.{$colOne} = {$table_A}.{$colOne}"
@@ -1737,12 +1737,12 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
         $table1 = $this->_db->quoteTableAs('table1');
         $table2 = $this->_db->quoteTableAs('table2');
         $colname = $this->_db->quoteIdentifier('column1');
-        
+
         $select = $this->_db->select();
         $select->from('table1')->joinUsing('table2', $colname);
         $this->assertRegexp("/ON {$table2}.{$colname}/s", $select->assemble());
     }
-    
+
     /**
      * @group ZF-3309
      */
@@ -1751,10 +1751,77 @@ abstract class Zend_Db_Select_TestCommon extends Zend_Db_TestSetup
         $table1 = $this->_db->quoteTableAs('table1');
         $table2_alias = $this->_db->quoteTableAs('t2');
         $colname = $this->_db->quoteIdentifier('column1');
-        
+
         $select = $this->_db->select();
         $select->from('table1')->joinUsing(array('t2'=>'table2'), $colname);
         $this->assertRegexp("/ON {$table2_alias}.{$colname}/s", $select->assemble());
-    }    
-    
+    }
+
+    public function testSqlInjectionWithOrder()
+    {
+        $select = $this->_db->select();
+        $select->from(array('p' => 'products'))->order('MD5(1);select');
+        $this->assertEquals('SELECT `p`.* FROM `products` AS `p` ORDER BY `MD5(1);select` ASC', $select->assemble());
+
+        $select = $this->_db->select();
+        $select->from(array('p' => 'products'))->order('name;select;MD5(1)');
+        $this->assertEquals('SELECT `p`.* FROM `products` AS `p` ORDER BY `name;select;MD5(1)` ASC', $select->assemble());
+    }
+
+    /**
+     * @group ZF-378
+     */
+    public function testOrderOfSingleFieldWithDirection()
+    {
+        $select = $this->_db->select();
+        $select->from(array ('p' => 'product'))
+            ->order('productId DESC');
+
+        $expected = 'SELECT `p`.* FROM `product` AS `p` ORDER BY `productId` DESC';
+        $this->assertEquals($expected, $select->assemble(),
+            'Order direction of field failed');
+    }
+
+    /**
+     * @group ZF-378
+     */
+    public function testOrderOfMultiFieldWithDirection()
+    {
+        $select = $this->_db->select();
+        $select->from(array ('p' => 'product'))
+            ->order(array ('productId DESC', 'userId ASC'));
+
+        $expected = 'SELECT `p`.* FROM `product` AS `p` ORDER BY `productId` DESC, `userId` ASC';
+        $this->assertEquals($expected, $select->assemble(),
+            'Order direction of field failed');
+    }
+
+    /**
+     * @group ZF-378
+     */
+    public function testOrderOfMultiFieldButOnlyOneWithDirection()
+    {
+        $select = $this->_db->select();
+        $select->from(array ('p' => 'product'))
+            ->order(array ('productId', 'userId DESC'));
+
+        $expected = 'SELECT `p`.* FROM `product` AS `p` ORDER BY `productId` ASC, `userId` DESC';
+        $this->assertEquals($expected, $select->assemble(),
+            'Order direction of field failed');
+    }
+
+    /**
+     * @group ZF-378
+     * @group ZF-381
+     */
+    public function testOrderOfConditionalFieldWithDirection()
+    {
+        $select = $this->_db->select();
+        $select->from(array ('p' => 'product'))
+            ->order('IF(`productId` > 5,1,0) ASC');
+
+        $expected = 'SELECT `p`.* FROM `product` AS `p` ORDER BY IF(`productId` > 5,1,0) ASC';
+        $this->assertEquals($expected, $select->assemble(),
+            'Order direction of field failed');
+    }
 }

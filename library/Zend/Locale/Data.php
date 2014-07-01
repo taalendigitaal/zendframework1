@@ -25,6 +25,9 @@
  */
 require_once 'Zend/Locale.php';
 
+/** @see Zend_Xml_Security */
+require_once 'Zend/Xml/Security.php';
+
 /**
  * Locale data reader, handles the CLDR
  *
@@ -158,7 +161,7 @@ class Zend_Locale_Data
                 throw new Zend_Locale_Exception("Missing locale file '$filename' for '$locale' locale.");
             }
 
-            self::$_ldml[(string) $locale] = simplexml_load_file($filename);
+            self::$_ldml[(string) $locale] = Zend_Xml_Security::scanFile($filename);
         }
 
         // search for 'alias' tag in the search path for redirection
@@ -289,6 +292,10 @@ class Zend_Locale_Data
             throw new Zend_Locale_Exception("Locale (" . (string) $locale . ") is a unknown locale");
         }
 
+        if (Zend_Locale::isAlias($locale)) {
+            // Return a valid CLDR locale so that the XML file can be loaded.
+            return Zend_Locale::getAlias($locale);
+        }
         return (string) $locale;
     }
 
