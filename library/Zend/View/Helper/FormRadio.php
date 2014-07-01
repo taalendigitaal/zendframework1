@@ -122,6 +122,13 @@ class Zend_View_Helper_FormRadio extends Zend_View_Helper_FormElement
 
         // ensure value is an array to allow matching multiple times
         $value = (array) $value;
+        // BEGIN FIX FOR ZF-8587
+        foreach($value as $k => $v) {
+            if (is_numeric($v)) {
+                $value[$k] = intval($v);
+            }
+        }
+        // END FIX FOR ZF-8587
 
         // Set up the filter - Alnum + hyphen + underscore
         require_once 'Zend/Filter/PregReplace.php';
@@ -148,7 +155,7 @@ class Zend_View_Helper_FormRadio extends Zend_View_Helper_FormElement
 
             // is it checked?
             $checked = '';
-            if (in_array($opt_value, $value)) {
+            if (in_array($opt_value, $value, true)) { // ADDED 3RD PARAMETER TO FIX ZF-8587
                 $checked = ' checked="checked"';
             }
 
