@@ -306,11 +306,25 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $matchedTokens = array_reverse($matchedTokens);
 
         foreach ($matchedTokens as $token) {
+            /* FIX for ZF-3629
             // Cut text after matched token
             $node->splitText($token->getEndOffset());
 
             // Cut matched node
             $matchedWordNode = $node->splitText($token->getStartOffset());
+            */
+            $startOffset = $token->getStartOffset();
+            $endOffset = $token->getEndOffset();
+            $bytesStartOffset = mb_strlen(mb_substr($node->wholeText, 0, $startOffset));
+            $bytesEndOffset = mb_strlen(mb_substr($node->wholeText, 0, $endOffset));
+
+            // Cut text after matched token
+            $node->splitText($bytesEndOffset);
+
+            // Cut matched node
+            $matchedWordNode = $node->splitText($bytesStartOffset);
+
+            /* END FIX */
 
             // Retrieve HTML string representation for highlihted word
             $fullCallbackparamsList = $params;
@@ -423,9 +437,17 @@ class Zend_Search_Lucene_Document_Html extends Zend_Search_Lucene_Document
         $wordsToHighlightList = array();
         $analyzer = Zend_Search_Lucene_Analysis_Analyzer::getDefault();
         foreach ($words as $wordString) {
-            $wordsToHighlightList[] = $analyzer->tokenize($wordString);
+            // BEGIN FIX FOR ZF-11009
+            $wordsToHighlightList[] = $analyzer->tokenize($wordString, 'UTF-8');
+            // END FIX
         }
-        $wordsToHighlight = call_user_func_array('array_merge', $wordsToHighlightList);
+
+        // BEGIN FIX FOR ZF-6574
+        $wordsToHighlight = array();
+        if (count($wordsToHighlightList) > 0) {
+            $wordsToHighlight = call_user_func_array('array_merge', $wordsToHighlightList);
+        }
+        // END FIX
 
         if (count($wordsToHighlight) == 0) {
             return $this->_doc->saveHTML();
